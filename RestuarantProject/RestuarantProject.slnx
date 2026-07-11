@@ -1,0 +1,7 @@
+<Solution>
+  <Configurations>
+    <Platform Name="x64" />
+    <Platform Name="x86" />
+  </Configurations>
+  <Project Path="RestuarantProject/RestuarantProject.vcxproj" Id="a181b588-42ea-48ca-8531-34e555726c68" />
+</Solution>
