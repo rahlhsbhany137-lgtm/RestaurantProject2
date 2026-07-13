@@ -14,6 +14,7 @@
 #include "OrderDAO.h"
 #include "../../miniProject2/miniProject2/LevelHistoryDAO.h"
 
+
 class System {
 private:
     std::vector<std::shared_ptr<User>> users;
@@ -28,6 +29,8 @@ private:
 
     int nextOrderId = 1;
     LevelHistoryDAO* levelHistoryDAO;
+    CouponDAO* couponDAO;
+    BadgeDAO* badgeDAO;
 
 public:
     System();
@@ -88,7 +91,10 @@ public:
     bool toggleRestaurantStatus(int restaurantId);
     bool updateRestaurantInfo(std::shared_ptr<Restaurant> restaurant);
     void showReports() const;
+    void showLevelStatistics() const;
     void loadFromDatabase();
     bool updateCustomer(Customer* customer);
     bool addLevelHistory(int customerId, const std::string& oldLevel, const std::string& newLevel);
+    void giveMonthlyCoupons();
+    void giveBadge(Customer* customer, const std::string& badge);
 };

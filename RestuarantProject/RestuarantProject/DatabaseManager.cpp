@@ -187,6 +187,16 @@ void DatabaseManager::createTables()
 
        execute(couponTable);
 
+       std::string badgesTable =
+           "CREATE TABLE IF NOT EXISTS Badges ("
+           "id INTEGER PRIMARY KEY AUTOINCREMENT,"
+           "customerId INTEGER,"
+           "badge TEXT,"
+           "FOREIGN KEY(customerId) REFERENCES Users(id)"
+           ");";
+      
+        execute(badgesTable);
+
     std::cout << "Tables created.\n";
 }
 

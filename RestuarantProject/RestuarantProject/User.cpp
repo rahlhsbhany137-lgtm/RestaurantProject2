@@ -21,6 +21,29 @@ level(std::make_unique<NormalLevel>()){
 
 Cart& Customer::getCart() { return cart; }
 
+void Customer::addBadge(const std::string& badge)
+{
+    badges.push_back(badge);
+}
+
+std::vector<std::string> Customer::getBadges() const
+{
+    return badges;
+}
+
+bool Customer::hasBadge(const std::string& badge) const
+{
+    for (const auto& b : badges)
+    {
+        if (b == badge)
+        {
+            return true;
+        }
+    }
+
+    return false;
+}
+
 int Customer::getPoints() const
 {
     return points;
@@ -177,5 +200,72 @@ void Customer::showHistory(System& system) const {
     for (const auto& o : orders) {
         if (o) o->showOrder();
     }
+}
+
+void Customer::showBadges() const
+{
+    std::cout << "\n----- Badges -----\n";
+
+    if (badges.empty())
+    {
+        std::cout << "No badges.\n";
+        return;
+    }
+
+    for (const auto& badge : badges)
+    {
+        std::cout << "- " << badge << std::endl;
+    }
+}
+
+void Customer::showMembershipInfo() const
+{
+    std::cout << "\n========== MEMBERSHIP ==========\n";
+
+    std::cout << "Username : "
+        << getUsername()
+        << std::endl;
+
+    std::cout << "Level : "
+        << level->getLevelName()
+        << std::endl;
+
+    std::cout << "Points : "
+        << points
+        << std::endl;
+
+    std::cout << "Next Level : ";
+
+    if (level->getLevelName() == "VIP")
+    {
+        std::cout << "MAX";
+    }
+    else
+    {
+        std::cout << level->getRequiredPoints();
+    }
+
+    std::cout << std::endl;
+
+    std::cout << "Discount : "
+        << level->getDiscount() * 100
+        << "%"
+        << std::endl;
+
+    std::cout << "Shipping : ";
+
+    if (level->getLevelName() == "Normal")
+        std::cout << "Normal";
+
+    else if (level->getLevelName() == "Silver")
+        std::cout << "Half Price";
+
+    else if (level->getLevelName() == "Gold")
+        std::cout << "Half Price";
+
+    else if (level->getLevelName() == "VIP")
+        std::cout << "Free";
+
+    std::cout << std::endl;
 }
 

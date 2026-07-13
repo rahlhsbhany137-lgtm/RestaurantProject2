@@ -180,11 +180,13 @@ int main() {
         if (auto a = std::dynamic_pointer_cast<SystemAdmin>(user)) {
             int choice;
             do {
-                std::cout << "\n--- SYSTEM ADMIN PANEL ---\n1. Register New Restaurant\n2. Toggle Status\n3. Reports\n0. Logout\nChoice: ";
+                std::cout << "\n--- SYSTEM ADMIN PANEL ---\n1. Register New Restaurant\n2. Toggle Status\n3. Reports\n4. Level Statistics\n5. Give Monthly Coupons\n0. Logout\nChoice: ";
                 std::cin >> choice;
                 if (choice == 1) a->addRestaurant(system);
                 else if (choice == 2) a->toggleRestaurant(system);
                 else if (choice == 3) a->viewReports(system);
+                else if (choice == 4) system.showLevelStatistics();
+                else if (choice == 5) system.giveMonthlyCoupons();
             } while (choice != 0);
         }
         else if (auto m = std::dynamic_pointer_cast<RestaurantAdmin>(user)) {
@@ -195,7 +197,7 @@ int main() {
             int choice;
             do {
                 std::cout << "\n--- CUSTOMER PANEL (" << c->getUsername() << ") ---\n";
-                std::cout << "1. List Restaurants\n2. Select Restaurant\n3. View Menu\n4. Add to Cart\n5. Show Cart\n6. Checkout\n7. History\n0. Logout\nChoice: ";
+                std::cout << "1. List Restaurants\n2. Select Restaurant\n3. View Menu\n4. Add to Cart\n5. Show Cart\n6. Checkout\n7. History\n8. show Badges\n9. Membership Information\n0. Logout\nChoice: ";
                 if (!(std::cin >> choice)) { clearInput(); break; }
                 switch (choice) {
                 case 1: system.showRestaurants(); break;
@@ -259,48 +261,29 @@ int main() {
                     break;
                 }
                 case 5: c->getCart().showCart(); break;
-                case 6: {
 
-                    if (!selectedRestaurant) {
+                case 6:
+                {
+                    if (!selectedRestaurant)
+                    {
                         std::cout << "No restaurant selected.\n";
                         break;
                     }
 
-                    if (c->getCart().getItems().empty()) {
-                        std::cout << "Cart is empty.\n";
-                        break;
-                    }
-
-                    c->getCart().showCart();
-
-                    int confirm;
-
-                    std::cout << "Confirm order? (1=yes, 0=no): ";
-                    std::cin >> confirm;
-
-                    if (confirm == 1) {
-
-                        auto order = system.createOrder(
-                            c->getId(),
-                            selectedRestaurant->getId(),
-                            c->getCart().getItems()
-                        );
-
-                        if (order) {
-                            std::cout
-                                << "Order placed successfully.\n"
-                                << "Order ID: "
-                                << order->getOrderId()
-                                << "\n"
-                                << "Status Preparing\n";
-
-                            c->getCart().clear();
-                        }
-                    }
+                    c->checkout(system, selectedRestaurant->getId());
 
                     break;
                 }
-                case 7: c->showHistory(system); break;
+
+                case 7: c->showHistory(system); 
+                    break;
+
+                case 8: c->showBadges();
+                  break;
+
+                case 9: c->showMembershipInfo();
+                    break;
+              
                 }
             } while (choice != 0);
         }

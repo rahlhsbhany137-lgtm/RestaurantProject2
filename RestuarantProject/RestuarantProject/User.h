@@ -30,6 +30,8 @@ class Customer : public User {
 private:
     Cart cart;
 
+    std::vector<std::string> badges;
+
     int points;
     std::unique_ptr<MembershipLevel> level;
 
@@ -37,6 +39,12 @@ public:
     Customer(int id, const std::string& u, const std::string& p);
 
     Cart& getCart();
+
+    void addBadge(const std::string& badge);
+
+    std::vector<std::string> getBadges() const;
+
+    bool hasBadge(const std::string& badge) const;
 
   
     std::shared_ptr<Order> checkout(System& system, int restaurantId);
@@ -50,5 +58,7 @@ public:
     MembershipLevel* getLevel() const;
     void setLevel(std::unique_ptr<MembershipLevel> newLevel);
     void updateLevel();
+    void showBadges() const;
+    void showMembershipInfo() const;
 
 };
