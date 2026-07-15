@@ -1,7 +1,7 @@
 #include "User.h"
 #include "System.h"
 #include <iostream>
-#include "../../miniProject2/miniProject2/MembershipLevel.h"
+#include "../../miniProject2/MembershipLevel.h"
 
 // ---------- User ----------
 User::User(int id, const std::string& u, const std::string& p, UserRole r)
@@ -150,6 +150,10 @@ std::shared_ptr<Order> Customer::checkout(System& system, int restaurantId) {
         << finalPrice
         << "\n";
 
+    std::cout << "Earned Points : "
+        << earnedPoints
+        << std::endl;
+
     std::cout << "=========================\n";
 
     int earnedPoints = static_cast<int>((finalPrice / 10.0) * level->getPointMultiplier());
@@ -178,9 +182,9 @@ std::shared_ptr<Order> Customer::checkout(System& system, int restaurantId) {
         
         system.updateCustomer(this);
 
-        std::cout << "Earned eaarned" << earnedPoints << "points.\n";
-        std::cout << "Current Points" << getPoints() << ".\n";
-        std::cout << "Current Level" << getLevel()->getLevelName() << ".\n";
+        std::cout << "Earned Points" << earnedPoints << std::endl;
+        std::cout << "Current Points" << getPoints() << std::endl;
+        std::cout << "Current Level" << getLevel()->getLevelName() << std::endl;
 
         cart.clear();
         std::cout << "Order placed successfully! Order ID: " << order->getOrderId() << "\n";

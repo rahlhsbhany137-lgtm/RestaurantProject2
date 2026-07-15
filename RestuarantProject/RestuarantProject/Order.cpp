@@ -104,6 +104,7 @@ void Order::showOrder() const {
     std::cout << "Earned Points : "
         << earnedPoints
         << "\n";
+    std::cout << "-----------\n";
 
     std::cout << "Status: ";
     switch (status) {

@@ -12,7 +12,9 @@
 #include "RestaurantDAO.h"
 #include "MenuItemDAO.h"
 #include "OrderDAO.h"
-#include "../../miniProject2/miniProject2/LevelHistoryDAO.h"
+#include "../../miniProject2/LevelHistoryDAO.h"
+#include "../CouponDAO.h"
+#include "../BadgeDAO.h"
 
 
 class System {
@@ -97,4 +99,6 @@ public:
     bool addLevelHistory(int customerId, const std::string& oldLevel, const std::string& newLevel);
     void giveMonthlyCoupons();
     void giveBadge(Customer* customer, const std::string& badge);
+    void showLevelHistory(int customerId);
+    void checkInactiveCustomers();
 };

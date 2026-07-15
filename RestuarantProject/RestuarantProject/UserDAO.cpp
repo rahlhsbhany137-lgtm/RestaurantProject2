@@ -1,5 +1,5 @@
 #include "UserDAO.h"
-#include "../../miniProject2/miniProject2/MembershipLevel.h"
+#include "../../miniProject2/MembershipLevel.h"
 
 UserDAO::UserDAO(DatabaseManager& databaseManager)
     : dbManager(databaseManager)
@@ -221,7 +221,7 @@ UserDAO::getUserByCredentials(const std::string& username,
     sqlite3* db = dbManager.getDB();
     const char* sql =
         "SELECT id, username, password, role,"
-        "restaurantId, currentLevel FROM Users WHERE username=? AND password=?;";
+        "restaurantId, points,  currentLevel FROM Users WHERE username=? AND password=?;";
 
     sqlite3_stmt* stmt = nullptr;
 
@@ -240,23 +240,16 @@ UserDAO::getUserByCredentials(const std::string& username,
         std::string p = (const char*)sqlite3_column_text(stmt, 2);
         int roleInt = sqlite3_column_int(stmt, 3);
         int restaurantId = sqlite3_column_int(stmt, 4);
-        std::string currentLevel = (const char*)sqlite3_column_text(stmt, 5);
+        int points = sqlite3_column_int(stmt, 5);
+        std::string currentLevel = (const char*)sqlite3_column_text(stmt, 6);
 
         UserRole role = static_cast<UserRole>(roleInt);
 
         if (role == UserRole::CUSTOMER)
         {
-           auto customer = std::make_shared<Customer>(id, u, p);
-        }
+            auto customer = std::make_shared<Customer>(id, u, p);
+            customer->setPoints(points);
 
-        if (role == UserRole::CUSTOMER)
-        {
-            auto customer =
-                std::make_shared<Customer>(
-                    id,
-                    u,
-                    p
-                );
 
             if (currentLevel == "Normal")
             {
@@ -291,6 +284,7 @@ UserDAO::getUserByCredentials(const std::string& username,
         {
             user = std::make_shared<RestaurantAdmin>(id, u, p, restaurantId);
         }
+
         else
         {
             user = std::make_shared<SystemAdmin>(id, u, p);

@@ -83,17 +83,17 @@ public:
 
 class GoldLevel : public MembershipLevel {
 public:
-    double getDiscount()
+    double getDiscount() const override
     {
         return 0.10;
     }
 
-    double getPointMultiplier()
+    double getPointMultiplier() const override
     {
         return 1.5;
     }
 
-    double getShippingCost(double shipping)
+    double getShippingCost(double shipping) const override
     {
         return shipping / 2;
     }
@@ -111,17 +111,17 @@ public:
 
 class VIPLevel : public MembershipLevel {
 public:
-    double getDiscount()
+    double getDiscount() const override
     {
         return 0.15;
     }
 
-    double getPointMultiplier()
+    double getPointMultiplier() const override
     {
         return 2;
     }
 
-    double getShippingCost(double shipping)
+    double getShippingCost(double shipping) const override
     {
         return 0;
     }

@@ -1,3 +1,12 @@
+#pragma once
+
+#include <vector>
+#include <memory>
+
+#include "DatabaseManager.h"
+#include "Coupon.h"
+#include "sqlite3.h"
+
 class CouponDAO
 {
 private:

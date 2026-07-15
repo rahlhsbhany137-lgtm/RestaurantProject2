@@ -143,7 +143,7 @@
     </Manifest>
   </ItemDefinitionGroup>
   <ItemGroup>
-    <ClCompile Include="..\..\sqlite-amalgamation-3530100\sqlite-amalgamation-3530100\sqlite3.c">
+      <ClCompile Include="sqlite3.c">
       <CompileAs Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">CompileAsC</CompileAs>
       <CompileAs Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">CompileAsC</CompileAs>
       <CompileAs Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">CompileAsC</CompileAs>
@@ -163,7 +163,7 @@
     <ClCompile Include="UserDAO.cpp" />
   </ItemGroup>
   <ItemGroup>
-    <ClInclude Include="..\..\sqlite-amalgamation-3530100\sqlite-amalgamation-3530100\sqlite3.h" />
+   <ClInclude Include="sqlite3.h" />
     <ClInclude Include="Admin.h" />
     <ClInclude Include="Cart.h" />
     <ClInclude Include="DatabaseManager.h" />

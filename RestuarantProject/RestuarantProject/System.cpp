@@ -50,7 +50,7 @@ std::shared_ptr<User> System::login(const std::string& u, const std::string& p) 
   if (customer) {
       auto badges = badgeDAO->getBadgesByCustomer(customer->getId());
       for (const auto& badge : badges) {
-          customer->addBadge(badge)
+          customer->addBadge(badge);
       }
   }
   return user;
@@ -378,13 +378,30 @@ std::vector<std::shared_ptr<Order>> System::getOrdersByRestaurantId(int restaura
     return orderDAO->getOrdersByRestaurantId(restaurantId);
 }
 
-bool System::setOrderStatus(int orderId, int restaurantId, OrderStatus status)
+bool System::setOrderStatus(
+    int orderId,
+    int restaurantId,
+    OrderStatus status)
 {
     auto order = orderDAO->getOrderById(orderId);
 
     if (!order)
         return false;
 
+   
+    if (order->getStatus() == status)
+        return false;
+
+
+    if (order->getRestaurantId() != restaurantId)
+        return false;
+
+    bool ok = orderDAO->updateOrderStatus(orderId, status);
+
+    if (!ok)
+        return false;
+
+   
     if (status == OrderStatus::CANCELLED)
     {
         auto customer =
@@ -397,7 +414,9 @@ bool System::setOrderStatus(int orderId, int restaurantId, OrderStatus status)
             std::string oldLevel =
                 customer->getLevel()->getLevelName();
 
-            customer->removePoints(order->getEarnedPoints());
+            customer->removePoints(
+                order->getEarnedPoints()
+            );
 
             std::string newLevel =
                 customer->getLevel()->getLevelName();
@@ -415,7 +434,7 @@ bool System::setOrderStatus(int orderId, int restaurantId, OrderStatus status)
         }
     }
 
-    return orderDAO->updateOrderStatus(orderId, status);
+    return true;
 }
 
 bool System::toggleRestaurantStatus(int restaurantId) {
@@ -595,4 +614,79 @@ void System::giveBadge(Customer* customer,const std::string& badge)
         << " received badge: "
         << badge
         << std::endl;
+}
+
+void System::showLevelHistory(int customerId)
+{
+
+    auto history =
+        levelHistoryDAO->getHistoryByCustomer(
+            customerId
+        );
+
+    if (history.empty())
+    {
+        std::cout
+            << "No level history.\n";
+
+        return;
+    }
+
+    std::cout
+        << "\n===== Level History =====\n";
+
+    for (const auto& h : history)
+    {
+        std::cout
+            << h.getOldLevel()
+            << " -> "
+            << h.getNewLevel()
+            << std::endl;
+
+        std::cout
+            << h.getChangeDate()
+            << std::endl;
+
+        std::cout
+            << "-----------------\n";
+    }
+}
+
+void System::checkInactiveCustomers()
+{
+    for (auto& user : users)
+    {
+        auto customer =
+            std::dynamic_pointer_cast<Customer>(user);
+
+        if (!customer)
+            continue;
+
+        std::string oldLevel =
+            customer->getLevel()->getLevelName();
+
+        customer->updateLevel();
+
+        std::string newLevel =
+            customer->getLevel()->getLevelName();
+
+        if (oldLevel != newLevel)
+        {
+            addLevelHistory(
+                customer->getId(),
+                oldLevel,
+                newLevel
+            );
+
+            updateCustomer(customer.get());
+
+            std::cout
+                << customer->getUsername()
+                << " : "
+                << oldLevel
+                << " -> "
+                << newLevel
+                << std::endl;
+        }
+    }
 }

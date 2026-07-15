@@ -180,13 +180,15 @@ int main() {
         if (auto a = std::dynamic_pointer_cast<SystemAdmin>(user)) {
             int choice;
             do {
-                std::cout << "\n--- SYSTEM ADMIN PANEL ---\n1. Register New Restaurant\n2. Toggle Status\n3. Reports\n4. Level Statistics\n5. Give Monthly Coupons\n0. Logout\nChoice: ";
+                std::cout << "\n--- SYSTEM ADMIN PANEL ---\n1. Register New Restaurant\n2. Toggle Status\n3. Reports\n4. Level Statistics\n5. Give Monthly Coupons\n6. Check Inactive Customers\n0. Logout\nChoice: ";
                 std::cin >> choice;
                 if (choice == 1) a->addRestaurant(system);
                 else if (choice == 2) a->toggleRestaurant(system);
                 else if (choice == 3) a->viewReports(system);
                 else if (choice == 4) system.showLevelStatistics();
                 else if (choice == 5) system.giveMonthlyCoupons();
+                else if (choice == 6) system.checkInactiveCustomers();
+
             } while (choice != 0);
         }
         else if (auto m = std::dynamic_pointer_cast<RestaurantAdmin>(user)) {
@@ -197,7 +199,7 @@ int main() {
             int choice;
             do {
                 std::cout << "\n--- CUSTOMER PANEL (" << c->getUsername() << ") ---\n";
-                std::cout << "1. List Restaurants\n2. Select Restaurant\n3. View Menu\n4. Add to Cart\n5. Show Cart\n6. Checkout\n7. History\n8. show Badges\n9. Membership Information\n0. Logout\nChoice: ";
+                std::cout << "1. List Restaurants\n2. Select Restaurant\n3. View Menu\n4. Add to Cart\n5. Show Cart\n6. Checkout\n7. History\n8. show Badges\n9. Membership Information\n10. Show Level History\n0. Logout\nChoice: ";
                 if (!(std::cin >> choice)) { clearInput(); break; }
                 switch (choice) {
                 case 1: system.showRestaurants(); break;
@@ -283,7 +285,10 @@ int main() {
 
                 case 9: c->showMembershipInfo();
                     break;
-              
+
+                case 10: system.showLevelHistory(c->getId());
+                    break;
+                
                 }
             } while (choice != 0);
         }
