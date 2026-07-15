@@ -4,7 +4,7 @@
 #include <string>
 #include "Cart.h"
 #include "Order.h"
-#include "../../miniProject2/MembershipLevel.h"
+#include "../MembershipLevel.h"
 
 class System; 
 
@@ -58,7 +58,9 @@ public:
     MembershipLevel* getLevel() const;
     void setLevel(std::unique_ptr<MembershipLevel> newLevel);
     void updateLevel();
+    void downgradeLevel();
     void showBadges() const;
     void showMembershipInfo() const;
+   
 
 };

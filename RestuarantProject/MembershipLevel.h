@@ -17,6 +17,12 @@ public:
     virtual std::string getLevelName() const = 0;
 
     virtual int getRequiredPoints() const = 0;
+
+    virtual int monthlyCouponCount() const = 0;
+
+    virtual std::string getMembershipBadge() const = 0;
+
+    virtual std::string getShippingDescription() const = 0;
 };
 
 class NormalLevel : public MembershipLevel
@@ -48,6 +54,20 @@ public:
         return 100;
     }
 
+    int monthlyCouponCount() const override
+    {
+        return 0;
+    }
+
+    std::string getMembershipBadge() const override
+    {
+        return "";
+    }
+
+    std::string getShippingDescription() const override
+    {
+        return "Normal";
+    }
 };
 
 class SilverLevel : public MembershipLevel
@@ -79,6 +99,20 @@ public:
         return 300;
     }
 
+    int monthlyCouponCount() const override
+    {
+        return 1;
+    }
+
+    std::string getMembershipBadge() const override
+    {
+        return "Silver Member";
+    }
+
+    std::string getShippingDescription() const override
+    {
+        return "Half Price";
+    }
 };
 
 class GoldLevel : public MembershipLevel {
@@ -107,6 +141,21 @@ public:
     {
         return 700;
     }
+
+    int monthlyCouponCount() const override
+    {
+        return 2;
+    }
+
+    std::string getMembershipBadge() const override
+    {
+        return "Gold Member";
+    }
+
+    std::string getShippingDescription() const override
+    {
+        return "Half Price";
+    }
 };
 
 class VIPLevel : public MembershipLevel {
@@ -134,6 +183,21 @@ public:
     int getRequiredPoints() const override
     {
         return -1;
+    }
+
+    int monthlyCouponCount() const override
+    {
+        return 3;
+    }
+    
+    std::string getMembershipBadge() const override
+    {
+        return "VIP Member";
+    }
+
+    std::string getShippingDescription() const override
+    {
+        return "Free";
     }
 };
 

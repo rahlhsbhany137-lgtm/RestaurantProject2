@@ -1,7 +1,10 @@
 #include <iostream>
 #include <algorithm>
-
+#include <ctime>
+#include <sstream>
+#include <iomanip>
 #include "System.h"
+#include "../MembershipLevel.h"
 
 System::System() {
     db.openDatabase("restaurant_project2.db");
@@ -44,15 +47,10 @@ void System::registerUser(std::shared_ptr<User> user)
 
 std::shared_ptr<User> System::login(const std::string& u, const std::string& p) {
   auto user = userDAO->getUserByCredentials(u, p);
-  if (!user)
+  if (!user) {
       return nullptr;
-  auto customer = std::dynamic_pointer_cast<Customer>(user);
-  if (customer) {
-      auto badges = badgeDAO->getBadgesByCustomer(customer->getId());
-      for (const auto& badge : badges) {
-          customer->addBadge(badge);
-      }
   }
+
   return user;
 }
 
@@ -212,6 +210,12 @@ void System::showRestaurants() const {
 
     for (auto& r : restaurants) {
         if (!r) continue;
+        std::cout
+            << "Restaurant: "
+            << r->getName()
+            << " Status = "
+            << r->isActiveStatus()
+            << std::endl;
         if (!r->isActiveStatus()) continue;
         std::cout << idx++ << ". Name: " << r->getName() << "\n"
             << "About:" << r->getExtraDesc() << "\n"
@@ -273,8 +277,17 @@ std::shared_ptr<Restaurant> System::findRestaurantById(int id) {
     return  restaurantDAO->getRestaurantById(id);
 }
 
-std::shared_ptr<User> System::findUserById(int id){
-    return userDAO->getUserById(id);
+std::shared_ptr<User> System::findUserById(int id)
+{
+    for (const auto& user : users)
+    {
+        if (user->getId() == id)
+        {
+            return user;
+        }
+    }
+
+    return nullptr;
 }
 
 std::shared_ptr<Order> System::createOrder(
@@ -333,6 +346,8 @@ std::shared_ptr<Order> System::createOrder(
     if (customer)
     {
      
+        userDAO->updateLastOrderDate(customer->getId());
+
         auto orders =
             orderDAO->getOrdersByCustomerId(
                 customerId
@@ -347,27 +362,37 @@ std::shared_ptr<Order> System::createOrder(
             );
         }
 
-       
-        if (customer->getLevel()->getLevelName() == "Gold")
+        std::string badge =
+            customer->getLevel()->getMembershipBadge();
+
+        if (!badge.empty())
         {
             giveBadge(
                 customer.get(),
-                "Gold Member"
+                badge
             );
         }
+        
+        time_t now = time(nullptr);
 
-      
-        if (customer->getLevel()->getLevelName() == "VIP")
+        tm localTime;
+
+        localtime_s(&localTime, &now);
+
+        int hour = localTime.tm_hour;
+
+        if (hour >= 22 || hour <= 5)
         {
             giveBadge(
                 customer.get(),
-                "VIP Member"
+                "Night Customer"
             );
         }
     }
 
     return order;
 }
+
 
 std::vector<std::shared_ptr<Order>> System::getOrdersByCustomerId(int customerId) const {
     return
@@ -440,10 +465,14 @@ bool System::setOrderStatus(
 bool System::toggleRestaurantStatus(int restaurantId) {
     auto r = findRestaurantById(restaurantId);
     if (!r) return false;
+
     r->toggleStatus();
 
-    restaurantDAO->updateRestaurantStatus(restaurantId, r->isActiveStatus());
-
+    restaurantDAO->updateRestaurantStatus(
+        restaurantId,
+        r->isActiveStatus()
+    );
+    
     return true;
 }
 bool System::updateRestaurantInfo(
@@ -490,6 +519,25 @@ void System::loadFromDatabase()
 {
     users =
         userDAO->getAllUsers();
+
+    for (auto& user : users)
+    {
+        auto customer =
+            std::dynamic_pointer_cast<Customer>(user);
+
+        if (!customer)
+            continue;
+
+        auto badges =
+            badgeDAO->getBadgesByCustomer(
+                customer->getId()
+            );
+
+        for (const auto& badge : badges)
+        {
+            customer->addBadge(badge);
+        }
+    }
 
     restaurants =
         restaurantDAO->getAllRestaurants();
@@ -547,51 +595,26 @@ void System::giveMonthlyCoupons()
             continue;
         }
 
-        std::string level =
-            customer->getLevel()->getLevelName();
+        int count =
+            customer->getLevel()->monthlyCouponCount();
 
-        if (level == "Silver")
+        if (count == 0)
+            continue;
+
+        for (int i = 0; i < count; i++)
         {
             auto coupon =
                 std::make_shared<Coupon>(
                     0,
                     customer->getId(),
-                    "SILVER10",
+                    "MONTHLY",
                     10,
                     false
                 );
 
             couponDAO->insertCoupon(coupon);
         }
-        else if (level == "Gold")
-        {
-            auto coupon =
-                std::make_shared<Coupon>(
-                    0,
-                    customer->getId(),
-                    "GOLD20",
-                    20,
-                    false
-                );
-
-            couponDAO->insertCoupon(coupon);
-        }
-        else if (level == "VIP")
-        {
-            for (int i = 0; i < 3; i++)
-            {
-                auto coupon =
-                    std::make_shared<Coupon>(
-                        0,
-                        customer->getId(),
-                        "VIP30",
-                        30,
-                        false
-                    );
-
-                couponDAO->insertCoupon(coupon);
-            }
-        }
+        
     }
 
     std::cout << "Monthly coupons generated successfully.\n";
@@ -602,10 +625,13 @@ void System::giveBadge(Customer* customer,const std::string& badge)
     if (customer == nullptr)
         return;
 
+    
+
     if (customer->hasBadge(badge))
         return;
 
     customer->addBadge(badge);
+
 
     badgeDAO->insertBadge(customer->getId(), badge);
 
@@ -652,6 +678,33 @@ void System::showLevelHistory(int customerId)
     }
 }
 
+int daysBetween(const std::string& date)
+{
+    if (date.empty())
+        return 0;
+
+    std::tm tm = {};
+
+    std::istringstream ss(date);
+
+    ss >> std::get_time(
+        &tm,
+        "%Y-%m-%d %H:%M:%S"
+    );
+
+    std::time_t last =
+        std::mktime(&tm);
+
+    std::time_t now =
+        std::time(nullptr);
+
+    double seconds =
+        std::difftime(now, last);
+
+    return
+        static_cast<int>(seconds / 86400);
+}
+
 void System::checkInactiveCustomers()
 {
     for (auto& user : users)
@@ -665,7 +718,17 @@ void System::checkInactiveCustomers()
         std::string oldLevel =
             customer->getLevel()->getLevelName();
 
-        customer->updateLevel();
+        std::string last =
+            userDAO->getLastOrderDate(
+                customer->getId()
+            );
+
+        int days =
+            daysBetween(last);
+
+        if (days >= 90)
+        {
+            customer->downgradeLevel();
 
         std::string newLevel =
             customer->getLevel()->getLevelName();
@@ -688,5 +751,100 @@ void System::checkInactiveCustomers()
                 << newLevel
                 << std::endl;
         }
+        }
     }
+}
+
+bool System::upgradeCustomer(int customerId)
+{
+    auto customer =
+        std::dynamic_pointer_cast<Customer>(
+            findUserById(customerId)
+        );
+
+    if (!customer)
+        return false;
+
+    std::string oldLevel =
+        customer->getLevel()->getLevelName();
+
+    if (oldLevel == "Normal")
+    {
+        customer->setLevel(
+            std::make_unique<SilverLevel>()
+        );
+    }
+    else if (oldLevel == "Silver")
+    {
+        customer->setLevel(
+            std::make_unique<GoldLevel>()
+        );
+    }
+    else if (oldLevel == "Gold")
+    {
+        customer->setLevel(
+            std::make_unique<VIPLevel>()
+        );
+    }
+    else
+    {
+        return false;
+    }
+
+    addLevelHistory(
+        customerId,
+        oldLevel,
+        customer->getLevel()->getLevelName()
+    );
+
+    updateCustomer(customer.get());
+
+    return true;
+}
+
+bool System::downgradeCustomer(int customerId)
+{
+    auto customer =
+        std::dynamic_pointer_cast<Customer>(
+            findUserById(customerId)
+        );
+
+    if (!customer)
+        return false;
+
+    std::string oldLevel =
+        customer->getLevel()->getLevelName();
+
+    if (oldLevel == "VIP")
+    {
+        customer->setLevel(
+            std::make_unique<GoldLevel>()
+        );
+    }
+    else if (oldLevel == "Gold")
+    {
+        customer->setLevel(
+            std::make_unique<SilverLevel>()
+        );
+    }
+    else if (oldLevel == "Silver")
+    {
+        customer->setLevel(
+            std::make_unique<NormalLevel>()
+        );
+    }
+    else
+    {
+        return false;
+    }
+
+    addLevelHistory(
+        customerId,
+        oldLevel,
+        customer->getLevel()->getLevelName()
+    );
+
+    updateCustomer(customer.get());
+
+    return true;
 }

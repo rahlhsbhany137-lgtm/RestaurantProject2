@@ -13,8 +13,8 @@ enum class UserRole {
 };
 
 enum class RestaurantStatus {
-    ACTIVE,
-    INACTIVE
+    INACTIVE,
+    ACTIVE
 };
 
 enum class ItemType {

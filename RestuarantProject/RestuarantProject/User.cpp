@@ -1,7 +1,7 @@
 #include "User.h"
 #include "System.h"
 #include <iostream>
-#include "../../miniProject2/MembershipLevel.h"
+#include "../MembershipLevel.h"
 
 // ---------- User ----------
 User::User(int id, const std::string& u, const std::string& p, UserRole r)
@@ -111,6 +111,24 @@ void Customer::updateLevel()
     }
 }
 
+void Customer::downgradeLevel()
+{
+    std::string current = level->getLevelName();
+
+    if (current == "VIP")
+    {
+        level = std::make_unique<GoldLevel>();
+    }
+    else if (current == "Gold")
+    {
+        level = std::make_unique<SilverLevel>();
+    }
+    else if (current == "Silver")
+    {
+        level = std::make_unique<NormalLevel>();
+    }
+}
+
 std::shared_ptr<Order> Customer::checkout(System& system, int restaurantId) {
     if (cart.getItems().empty()) {
         std::cout << "Cart is empty!\n";
@@ -129,6 +147,7 @@ std::shared_ptr<Order> Customer::checkout(System& system, int restaurantId) {
     double discount = total * level->getDiscount();
     double shipping = level->getShippingCost(20);
     double finalPrice = total - discount + shipping;
+    int earnedPoints = static_cast<int>((finalPrice / 10.0) * level->getPointMultiplier());
 
     std::cout << "\n========== Invoice ==========\n";
 
@@ -156,7 +175,7 @@ std::shared_ptr<Order> Customer::checkout(System& system, int restaurantId) {
 
     std::cout << "=========================\n";
 
-    int earnedPoints = static_cast<int>((finalPrice / 10.0) * level->getPointMultiplier());
+    
     auto order = system.createOrder(
         id,
         restaurantId,
@@ -180,6 +199,7 @@ std::shared_ptr<Order> Customer::checkout(System& system, int restaurantId) {
             );
         }
         
+
         system.updateCustomer(this);
 
         std::cout << "Earned Points" << earnedPoints << std::endl;
@@ -256,20 +276,8 @@ void Customer::showMembershipInfo() const
         << "%"
         << std::endl;
 
-    std::cout << "Shipping : ";
-
-    if (level->getLevelName() == "Normal")
-        std::cout << "Normal";
-
-    else if (level->getLevelName() == "Silver")
-        std::cout << "Half Price";
-
-    else if (level->getLevelName() == "Gold")
-        std::cout << "Half Price";
-
-    else if (level->getLevelName() == "VIP")
-        std::cout << "Free";
-
-    std::cout << std::endl;
+    std::cout << "Shipping : "
+        << level->getShippingDescription()
+        << std::endl;
 }
 

@@ -1,5 +1,6 @@
 #include "RestaurantDAO.h"
 #include "MenuItemDAO.h"
+#include <iostream>
 
 RestaurantDAO::RestaurantDAO(
     DatabaseManager& databaseManager
@@ -157,6 +158,7 @@ RestaurantDAO::getAllRestaurants()
 
         int status =
             sqlite3_column_int(stmt, 6);
+        
 
         int adminId =
             sqlite3_column_int(stmt, 7);
@@ -244,6 +246,7 @@ bool RestaurantDAO::updateRestaurant(std::shared_ptr<Restaurant> r)
 
     sqlite3_stmt* stmt;
 
+
     if (sqlite3_prepare_v2(db, sql, -1, &stmt, nullptr) != SQLITE_OK)
         return false;
 
@@ -258,6 +261,7 @@ bool RestaurantDAO::updateRestaurant(std::shared_ptr<Restaurant> r)
 
     bool ok = (sqlite3_step(stmt) == SQLITE_DONE);
 
+   
     sqlite3_finalize(stmt);
     return ok;
 }
@@ -286,44 +290,43 @@ bool RestaurantDAO::updateRestaurantStatus(
 )
 {
     sqlite3* db = dbManager.getDB();
+
     const char* sql =
-        "UPDATE Restaurants "
-        "SET status=? "
-        "WHERE id=?;";
+        "UPDATE Restaurants SET status=? WHERE id=?;";
 
     sqlite3_stmt* stmt = nullptr;
 
-    if (
-        sqlite3_prepare_v2(
-            db,
-            sql,
-            -1,
-            &stmt,
-            nullptr
-        ) != SQLITE_OK
-        )
+
+
+    std::cout << "Updating Restaurant ID = "
+        << restaurantId << std::endl;
+
+    std::cout << "New Status = "
+        << status << std::endl;
+
+    if (sqlite3_prepare_v2(db, sql, -1, &stmt, nullptr) != SQLITE_OK)
     {
+        std::cout << sqlite3_errmsg(db) << std::endl;
         return false;
     }
 
-    sqlite3_bind_int(
-        stmt,
-        1,
-        status ? 1 : 0
-    );
+    sqlite3_bind_int(stmt, 1, status ? 1 : 0);
+    sqlite3_bind_int(stmt, 2, restaurantId);
 
-    sqlite3_bind_int(
-        stmt,
-        2,
-        restaurantId
-    );
+    int rc = sqlite3_step(stmt);
 
-    bool success =
-        sqlite3_step(stmt)
-        ==
-        SQLITE_DONE;
+    std::cout
+        << "Changed Rows = "
+        << sqlite3_changes(db)
+        << std::endl;
+
+
+    if (rc != SQLITE_DONE)
+    {
+        std::cout << sqlite3_errmsg(db) << std::endl;
+    }
 
     sqlite3_finalize(stmt);
 
-    return success;
+    return rc == SQLITE_DONE;
 }

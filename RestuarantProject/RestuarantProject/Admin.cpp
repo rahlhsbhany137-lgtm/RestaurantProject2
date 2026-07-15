@@ -2,6 +2,7 @@
 #include "System.h"
 #include <iostream>
 #include <string>
+#include <algorithm>
 
 // SystemAdmin
 SystemAdmin::SystemAdmin(int id, const std::string& u, const std::string& p)
@@ -40,6 +41,32 @@ void RestaurantAdmin::showOrders(System& system) const
 {
     auto orders =
         system.getOrdersByRestaurantId(restaurantId);
+
+    std::sort(
+        orders.begin(),
+        orders.end(),
+        [&](const std::shared_ptr<Order>& a,
+            const std::shared_ptr<Order>& b)
+        {
+            auto customerA =
+                std::dynamic_pointer_cast<Customer>(
+                    system.findUserById(a->getCustomerId()));
+
+            auto customerB =
+                std::dynamic_pointer_cast<Customer>(
+                    system.findUserById(b->getCustomerId()));
+
+            if (!customerA || !customerB)
+                return false;
+
+            bool vipA =
+                customerA->getLevel()->getLevelName() == "VIP";
+
+            bool vipB =
+                customerB->getLevel()->getLevelName() == "VIP";
+
+            return vipA > vipB;
+        });
 
     if (orders.empty())
     {
@@ -118,7 +145,7 @@ void RestaurantAdmin::runManagerMenu(System& system) {
         std::cout << "8. Toggle Item Availability\n";
         std::cout << "0. Logout\n";
         std::cout << "Choice: ";
-        if (!(std::cin >> choice)) { // جلوگیری از هنگ کردن در صورت ورود کاراکتر غیر عددی
+        if (!(std::cin >> choice)) {
             std::cin.clear();
             std::cin.ignore(1000, '\n');
             continue;
@@ -204,10 +231,10 @@ void RestaurantAdmin::runManagerMenu(System& system) {
         case 6:
             showOrders(system);
             break;
-        case 7: { // بروزرسانی وضعیت سفارش
+        case 7: { 
             int oId, s;
             std::cout << "Order ID: "; std::cin >> oId;
-            std::cout << "New Status (0: Preparing, 1: Ready To Send, 2: Delivered): "; std::cin >> s;
+            std::cout << "New Status (0: Preparing, 1: Ready To Send, 2: Delivered, 3:Cancelied): "; std::cin >> s;
             updateOrderStatus(system, oId, static_cast<OrderStatus>(s));
             break;
         }

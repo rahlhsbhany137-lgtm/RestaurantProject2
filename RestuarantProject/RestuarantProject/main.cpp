@@ -180,7 +180,7 @@ int main() {
         if (auto a = std::dynamic_pointer_cast<SystemAdmin>(user)) {
             int choice;
             do {
-                std::cout << "\n--- SYSTEM ADMIN PANEL ---\n1. Register New Restaurant\n2. Toggle Status\n3. Reports\n4. Level Statistics\n5. Give Monthly Coupons\n6. Check Inactive Customers\n0. Logout\nChoice: ";
+                std::cout << "\n--- SYSTEM ADMIN PANEL ---\n1. Register New Restaurant\n2. Toggle Status\n3. Reports\n4. Level Statistics\n5. Give Monthly Coupons\n6. Check Inactive Customers\n7. Upgrade Customer Level\n8. Downgrade Customer Level\n9. Show Customer LevelHistory\n0. Logout\nChoice: ";
                 std::cin >> choice;
                 if (choice == 1) a->addRestaurant(system);
                 else if (choice == 2) a->toggleRestaurant(system);
@@ -188,6 +188,39 @@ int main() {
                 else if (choice == 4) system.showLevelStatistics();
                 else if (choice == 5) system.giveMonthlyCoupons();
                 else if (choice == 6) system.checkInactiveCustomers();
+                else if (choice == 7)
+                {
+                    int id;
+                    std::cout << "Customer ID: ";
+                    std::cin >> id;
+
+                    if (system.upgradeCustomer(id))
+                        std::cout << "Customer upgraded successfully.\n";
+                    else
+                        std::cout << "Upgrade failed.\n";
+                }
+
+                else if (choice == 8)
+                {
+                    int id;
+                    std::cout << "Customer ID: ";
+                    std::cin >> id;
+
+                    if (system.downgradeCustomer(id))
+                        std::cout << "Customer downgraded successfully.\n";
+                    else
+                        std::cout << "Downgrade failed.\n";
+                }
+
+                else if (choice == 9)
+                {
+                    int customerId;
+
+                    std::cout << "Customer ID: ";
+                    std::cin >> customerId;
+
+                    system.showLevelHistory(customerId);
+                }
 
             } while (choice != 0);
         }
@@ -199,6 +232,35 @@ int main() {
             int choice;
             do {
                 std::cout << "\n--- CUSTOMER PANEL (" << c->getUsername() << ") ---\n";
+              
+                std::cout << "User : " << c->getUsername() << std::endl;
+                std::cout << "Level : " << c->getLevel()->getLevelName() << std::endl;
+                std::cout << "Points : " << c->getPoints() << std::endl;
+
+                auto badges = c->getBadges();
+
+                if (badges.empty())
+                {
+                    std::cout << "Badges : None" << std::endl;
+                }
+                else
+                {
+                    std::cout << "Badges : ";
+
+                    for (size_t i = 0; i < badges.size(); i++)
+                    {
+                        std::cout << badges[i];
+
+                        if (i != badges.size() - 1)
+                        {
+                            std::cout << ", ";
+                        }
+                    }
+
+                    std::cout << std::endl;
+                }
+                std::cout << "---------------\n";
+
                 std::cout << "1. List Restaurants\n2. Select Restaurant\n3. View Menu\n4. Add to Cart\n5. Show Cart\n6. Checkout\n7. History\n8. show Badges\n9. Membership Information\n10. Show Level History\n0. Logout\nChoice: ";
                 if (!(std::cin >> choice)) { clearInput(); break; }
                 switch (choice) {

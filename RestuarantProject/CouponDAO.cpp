@@ -1,4 +1,5 @@
 #include "CouponDAO.h"
+#include "RestuarantProject/sqlite3.h"
 
 CouponDAO::CouponDAO(DatabaseManager& db)
     : dbManager(db)

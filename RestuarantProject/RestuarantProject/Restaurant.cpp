@@ -29,7 +29,8 @@ std::string Restaurant::getPhone() const { return phone; }
 std::string Restaurant::getExtraDesc() const { return extraDesc; }
 int Restaurant::getAdminUserId() const { return adminUserId; }
 
-bool Restaurant::isActiveStatus() const {
+bool Restaurant::isActiveStatus() const
+{
     return status == RestaurantStatus::ACTIVE;
 }
 

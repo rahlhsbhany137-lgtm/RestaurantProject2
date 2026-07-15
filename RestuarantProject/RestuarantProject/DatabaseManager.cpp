@@ -5,6 +5,7 @@
 #include <iostream>
 #include <vector>
 #include <memory>
+#include <filesystem>
 
 DatabaseManager::DatabaseManager()
 {
@@ -18,6 +19,10 @@ DatabaseManager::~DatabaseManager()
 
 bool DatabaseManager::openDatabase(const std::string& dbName)
 {
+    std::cout<< "Working Directory" <<
+     std::filesystem::current_path() << std::endl;
+    std::cout << "Database Path: " << dbName << std::endl;
+
     if (sqlite3_open(dbName.c_str(), &db))
     {
         std::cout << "Cannot open database!\n";
@@ -99,7 +104,8 @@ void DatabaseManager::createTables()
         "role INTEGER,"
         "restaurantId INTEGER,"
         "points INTEGER DEFAULT 0,"
-        "currentLevel TEXT DEFAULT 'Normal'"
+        "currentLevel TEXT DEFAULT 'Normal',"
+        "lastOrderDate TEXT"
         ");";
 
     execute(usersTable);

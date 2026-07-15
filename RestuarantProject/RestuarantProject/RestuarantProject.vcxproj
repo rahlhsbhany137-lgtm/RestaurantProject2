@@ -143,7 +143,13 @@
     </Manifest>
   </ItemDefinitionGroup>
   <ItemGroup>
-      <ClCompile Include="sqlite3.c">
+    <ClCompile Include="..\BadgeDAO.cpp" />
+    <ClCompile Include="..\Coupon.cpp" />
+    <ClCompile Include="..\CouponDAO.cpp" />
+    <ClCompile Include="..\LevelHistory.cpp" />
+    <ClCompile Include="..\LevelHistoryDAO.cpp" />
+    <ClCompile Include="..\MembershipLevel.cpp" />
+    <ClCompile Include="sqlite3.c">
       <CompileAs Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">CompileAsC</CompileAs>
       <CompileAs Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">CompileAsC</CompileAs>
       <CompileAs Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">CompileAsC</CompileAs>
@@ -163,7 +169,13 @@
     <ClCompile Include="UserDAO.cpp" />
   </ItemGroup>
   <ItemGroup>
-   <ClInclude Include="sqlite3.h" />
+    <ClInclude Include="..\BadgeDAO.h" />
+    <ClInclude Include="..\Coupon.h" />
+    <ClInclude Include="..\CouponDAO.h" />
+    <ClInclude Include="..\LevelHistory.h" />
+    <ClInclude Include="..\LevelHistoryDAO.h" />
+    <ClInclude Include="..\MembershipLevel.h" />
+    <ClInclude Include="sqlite3.h" />
     <ClInclude Include="Admin.h" />
     <ClInclude Include="Cart.h" />
     <ClInclude Include="DatabaseManager.h" />

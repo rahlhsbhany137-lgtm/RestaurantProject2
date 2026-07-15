@@ -3,9 +3,9 @@
 #include <vector>
 #include <memory>
 
-#include "DatabaseManager.h"
+#include "../RestuarantProject/RestuarantProject/DatabaseManager.h"
 #include "Coupon.h"
-#include "sqlite3.h"
+#include "RestuarantProject/sqlite3.h"
 
 class CouponDAO
 {

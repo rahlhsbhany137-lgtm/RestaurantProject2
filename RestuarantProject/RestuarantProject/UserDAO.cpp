@@ -1,5 +1,6 @@
 #include "UserDAO.h"
-#include "../../miniProject2/MembershipLevel.h"
+#include "../MembershipLevel.h"
+#include "../BadgeDAO.h"
 
 UserDAO::UserDAO(DatabaseManager& databaseManager)
     : dbManager(databaseManager)
@@ -250,6 +251,14 @@ UserDAO::getUserByCredentials(const std::string& username,
             auto customer = std::make_shared<Customer>(id, u, p);
             customer->setPoints(points);
 
+            BadgeDAO badgeDAO(dbManager);
+
+            auto badges = badgeDAO.getBadgesByCustomer(id);
+
+            for (const auto& badge : badges)
+            {
+                customer->addBadge(badge);
+            }
 
             if (currentLevel == "Normal")
             {
@@ -384,4 +393,63 @@ bool UserDAO::updateCustomerLevelAndPoints(Customer* customer)
     sqlite3_finalize(stmt);
 
     return ok;
+}
+
+bool UserDAO::updateLastOrderDate(int customerId)
+{
+    sqlite3* db = dbManager.getDB();
+
+    const char* sql =
+        "UPDATE Users "
+        "SET lastOrderDate = CURRENT_TIMESTAMP "
+        "WHERE id=?;";
+
+    sqlite3_stmt* stmt = nullptr;
+
+    if (sqlite3_prepare_v2(db, sql, -1, &stmt, nullptr) != SQLITE_OK)
+    {
+        return false;
+    }
+
+    sqlite3_bind_int(stmt, 1, customerId);
+
+    bool ok =
+        (sqlite3_step(stmt) == SQLITE_DONE);
+
+    sqlite3_finalize(stmt);
+
+    return ok;
+}
+
+std::string UserDAO::getLastOrderDate(int customerId)
+{
+    sqlite3* db = dbManager.getDB();
+
+    const char* sql =
+        "SELECT lastOrderDate "
+        "FROM Users "
+        "WHERE id=?;";
+
+    sqlite3_stmt* stmt = nullptr;
+
+    if (sqlite3_prepare_v2(db, sql, -1, &stmt, nullptr) != SQLITE_OK)
+        return "";
+
+    sqlite3_bind_int(stmt, 1, customerId);
+
+    std::string result = "";
+
+    if (sqlite3_step(stmt) == SQLITE_ROW)
+    {
+        const unsigned char* txt =
+            sqlite3_column_text(stmt, 0);
+
+        if (txt)
+            result =
+            (const char*)txt;
+    }
+
+    sqlite3_finalize(stmt);
+
+    return result;
 }

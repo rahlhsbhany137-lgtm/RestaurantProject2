@@ -26,4 +26,6 @@ public:
     bool updateUser(std::shared_ptr<User> user);
     bool updateCustomerLevelAndPoints(Customer* customer);
     bool deleteUser(int id);
+    bool updateLastOrderDate(int customerId);
+    std::string getLastOrderDate(int customerId);
 };

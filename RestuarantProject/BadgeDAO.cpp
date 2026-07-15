@@ -10,6 +10,7 @@ bool BadgeDAO::insertBadge(
     const std::string& badge
 )
 {
+
     sqlite3* db = dbManager.getDB();
 
     const char* sql =
