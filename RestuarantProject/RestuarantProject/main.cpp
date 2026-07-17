@@ -350,6 +350,8 @@ int main() {
 
                 case 10: system.showLevelHistory(c->getId());
                     break;
+
+              
                 
                 }
             } while (choice != 0);

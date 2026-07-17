@@ -598,6 +598,8 @@ void System::giveMonthlyCoupons()
         int count =
             customer->getLevel()->monthlyCouponCount();
 
+       
+
         if (count == 0)
             continue;
 
@@ -847,4 +849,9 @@ bool System::downgradeCustomer(int customerId)
     updateCustomer(customer.get());
 
     return true;
+}
+
+CouponDAO* System::getCouponDAO()
+{
+    return couponDAO;
 }

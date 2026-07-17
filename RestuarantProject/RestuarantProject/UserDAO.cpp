@@ -129,6 +129,9 @@ UserDAO::getAllUsers()
         int restaurantId =
             sqlite3_column_int(stmt, 4);
 
+        std::string currentLevel =
+            (const char*)sqlite3_column_text(stmt, 5);
+
         UserRole role =
             static_cast<UserRole>(roleInt);
 
@@ -136,12 +139,39 @@ UserDAO::getAllUsers()
 
         if (role == UserRole::CUSTOMER)
         {
-            user =
+            auto customer =
                 std::make_shared<Customer>(
                     id,
                     username,
                     password
                 );
+
+            if (currentLevel == "Silver")
+            {
+                customer->setLevel(
+                    std::make_unique<SilverLevel>()
+                );
+            }
+            else if (currentLevel == "Gold")
+            {
+                customer->setLevel(
+                    std::make_unique<GoldLevel>()
+                );
+            }
+            else if (currentLevel == "VIP")
+            {
+                customer->setLevel(
+                    std::make_unique<VIPLevel>()
+                );
+            }
+            else
+            {
+                customer->setLevel(
+                    std::make_unique<NormalLevel>()
+                );
+            }
+
+            user = customer;
         }
         else if (
             role ==
@@ -200,11 +230,46 @@ UserDAO::getUserById(int id)
         std::string password = (const char*)sqlite3_column_text(stmt, 2);
         int roleInt = sqlite3_column_int(stmt, 3);
         int restaurantId = sqlite3_column_int(stmt, 4);
+        std::string currentLevel = (const char*)sqlite3_column_text(stmt, 5);
 
         UserRole role = static_cast<UserRole>(roleInt);
 
         if (role == UserRole::CUSTOMER)
-            user = std::make_shared<Customer>(uid, username, password);
+        {
+            auto customer =
+                std::make_shared<Customer>(
+                    id,
+                    username,
+                    password
+                );
+
+            if (currentLevel == "Silver")
+            {
+                customer->setLevel(
+                    std::make_unique<SilverLevel>()
+                );
+            }
+            else if (currentLevel == "Gold")
+            {
+                customer->setLevel(
+                    std::make_unique<GoldLevel>()
+                );
+            }
+            else if (currentLevel == "VIP")
+            {
+                customer->setLevel(
+                    std::make_unique<VIPLevel>()
+                );
+            }
+            else
+            {
+                customer->setLevel(
+                    std::make_unique<NormalLevel>()
+                );
+            }
+
+            user = customer;
+        }
         else if (role == UserRole::RESTAURANT_ADMIN)
             user = std::make_shared<RestaurantAdmin>(uid, username, password, restaurantId);
         else

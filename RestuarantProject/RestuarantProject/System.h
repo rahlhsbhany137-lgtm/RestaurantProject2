@@ -103,5 +103,6 @@ public:
     void checkInactiveCustomers();
     bool upgradeCustomer(int customerId);
     bool downgradeCustomer(int customerId);
+    CouponDAO* getCouponDAO();
     
 };

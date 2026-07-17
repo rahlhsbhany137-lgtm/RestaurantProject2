@@ -28,4 +28,6 @@ public:
     bool markAsUsed(
         int couponId
     );
+
+    std::shared_ptr<Coupon> getUnusedCoupon(int customerId);
 };

@@ -167,3 +167,38 @@ bool CouponDAO::markAsUsed(
 
     return ok;
 }
+
+std::shared_ptr<Coupon> CouponDAO::getUnusedCoupon(int customerId)
+{
+    sqlite3* db = dbManager.getDB();
+
+    const char* sql =
+        "SELECT id, customerId, code, discount, used "
+        "FROM Coupons "
+        "WHERE customerId=? AND used=0 "
+        "LIMIT 1;";
+
+    sqlite3_stmt* stmt = nullptr;
+
+    if (sqlite3_prepare_v2(db, sql, -1, &stmt, nullptr) != SQLITE_OK)
+        return nullptr;
+
+    sqlite3_bind_int(stmt, 1, customerId);
+
+    std::shared_ptr<Coupon> coupon = nullptr;
+
+    if (sqlite3_step(stmt) == SQLITE_ROW)
+    {
+        coupon = std::make_shared<Coupon>(
+            sqlite3_column_int(stmt, 0),
+            sqlite3_column_int(stmt, 1),
+            (const char*)sqlite3_column_text(stmt, 2),
+            sqlite3_column_int(stmt, 3),
+            sqlite3_column_int(stmt, 4)
+        );
+    }
+
+    sqlite3_finalize(stmt);
+
+    return coupon;
+}

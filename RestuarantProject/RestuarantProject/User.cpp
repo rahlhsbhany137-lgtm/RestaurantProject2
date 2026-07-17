@@ -144,7 +144,37 @@ std::shared_ptr<Order> Customer::checkout(System& system, int restaurantId) {
         return nullptr;
     }
     double total = cart.getTotal();
-    double discount = total * level->getDiscount();
+
+    std::shared_ptr<Coupon> coupon = nullptr;
+
+    auto coupons =
+        system.getCouponDAO()->getCouponsByCustomer(getId());
+
+   
+
+    for (auto& c : coupons)
+    {
+        if (!c->isUsed())
+        {
+            coupon = c;
+            break;
+        }
+    }
+    double discount =
+        total * level->getDiscount();
+
+    if (coupon)
+    {
+        discount += coupon->getDiscount();
+
+        std::cout
+            << "Coupon Used : "
+            << coupon->getCode()
+            << " (-"
+            << coupon->getDiscount()
+            << ")\n";
+    }
+
     double shipping = level->getShippingCost(20);
     double finalPrice = total - discount + shipping;
     int earnedPoints = static_cast<int>((finalPrice / 10.0) * level->getPointMultiplier());
@@ -199,6 +229,12 @@ std::shared_ptr<Order> Customer::checkout(System& system, int restaurantId) {
             );
         }
         
+        if (coupon)
+        {
+            system.getCouponDAO()->markAsUsed(
+                coupon->getId()
+            );
+        }
 
         system.updateCustomer(this);
 
